@@ -81,7 +81,3 @@ python3 -m streamlit run app.py
 
 ## Persistência de Dados
 Todos os dados são armazenados em um banco de dados SQLite local, garantindo que as informações permaneçam disponíveis entre diferentes execuções do programa.
-
----
-
-Desenvolvido por Matheus para o Grupo de Pesquisa Arqueológica da Amazônia

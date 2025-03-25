@@ -156,6 +156,21 @@ def create_point():
 def update_point():
     st.header("Atualizar Ponto de Escavação")
     
+    # Exibe mensagem de sucesso se atualização anterior foi bem-sucedida
+    if 'update_success' in st.session_state:
+        point_id = st.session_state.update_success
+        st.success(f"✅ Ponto de escavação (ID: {point_id}) atualizado com sucesso!")
+        # Exibe detalhes atualizados
+        if 'updated_point_type' in st.session_state:
+            st.info(f"Tipo: {st.session_state.updated_point_type} | Responsável: {st.session_state.updated_responsible}")
+        
+        # Limpa as flags da sessão
+        del st.session_state.update_success
+        if 'updated_point_type' in st.session_state:
+            del st.session_state.updated_point_type
+        if 'updated_responsible' in st.session_state:
+            del st.session_state.updated_responsible
+    
     # Lista os pontos para seleção
     df = db.get_all_points()
     
@@ -246,13 +261,24 @@ def update_point():
                     success = db.update_point(updated_point)
                     
                     if success:
-                        st.success(f"Ponto de escavação atualizado com sucesso!")
-                        # Limpa a sessão
+                        # Armazena informações sobre a atualização bem-sucedida na sessão
+                        st.session_state.update_success = point.id
+                        st.session_state.updated_point_type = point_type
+                        st.session_state.updated_responsible = responsible
+                        
+                        # Limpa a sessão do ponto atual
                         del st.session_state.current_point
-                        # Recarrega a página para atualizar os dados
-                        st.rerun()  # Substituído de experimental_rerun para rerun
+                        
+                        # Exibe um spinner para indicar que a atualização está sendo processada
+                        with st.spinner("Atualizando dados..."):
+                            # Pequena pausa para garantir que o usuário veja o spinner
+                            import time
+                            time.sleep(0.5)
+                        
+                        # Recarrega a página para atualizar os dados e mostrar a mensagem de sucesso
+                        st.rerun()
                     else:
-                        st.error("Erro ao atualizar o ponto de escavação.")
+                        st.error("❌ Erro ao atualizar o ponto de escavação.")
 
 def delete_point():
     st.header("Remover Ponto de Escavação")

@@ -7,8 +7,17 @@ import sys
 # Adiciona o diretório atual ao sys.path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from sitai.models import ExcavationPoint
-import sitai.database as db
+# Verifica se os módulos estão disponíveis no caminho diretamente ou na pasta sitai
+try:
+    from models import ExcavationPoint
+    import database as db
+except ModuleNotFoundError:
+    try:
+        from sitai.models import ExcavationPoint
+        import sitai.database as db
+    except ModuleNotFoundError:
+        st.error("Não foi possível importar os módulos necessários. Verifique a estrutura do projeto.")
+        st.stop()
 
 # Inicializa o banco de dados
 db.init_db()
@@ -241,7 +250,7 @@ def update_point():
                         # Limpa a sessão
                         del st.session_state.current_point
                         # Recarrega a página para atualizar os dados
-                        st.experimental_rerun()
+                        st.rerun()  # Substituído de experimental_rerun para rerun
                     else:
                         st.error("Erro ao atualizar o ponto de escavação.")
 
@@ -258,27 +267,53 @@ def delete_point():
     # Exibe a tabela para visualização
     st.dataframe(df)
     
-    point_id = st.number_input("ID do ponto a ser removido:", min_value=1, step=1)
+    # Formulário de exclusão
+    with st.form("delete_form"):
+        point_id = st.number_input("ID do ponto a ser removido:", min_value=1, step=1)
+        submitted = st.form_submit_button("Buscar Ponto")
     
-    if st.button("Buscar Ponto"):
+    if submitted:
         point = db.get_point_by_id(point_id)
         
         if point:
             st.warning(f"Você está prestes a remover o ponto: **{point.point_type}** (ID: {point.id})")
             st.write(f"Latitude: {point.latitude}, Longitude: {point.longitude}")
             st.write(f"Responsável: {point.responsible}")
+            st.write(f"Descrição: {point.description[:100]}..." if len(point.description) > 100 else f"Descrição: {point.description}")
             
-            if st.button("Confirmar Remoção", key="confirm_delete"):
-                success = db.delete_point(point_id)
-                
-                if success:
-                    st.success(f"Ponto de escavação removido com sucesso!")
-                    # Recarrega a página para atualizar os dados
-                    st.experimental_rerun()
-                else:
-                    st.error("Erro ao remover o ponto de escavação.")
+            # Botão de confirmação fora do formulário para evitar problemas de estado
+            confirm_delete = st.button("🗑️ Confirmar Exclusão", key="confirm_delete")
+            
+            if confirm_delete:
+                # Tentativa de exclusão com feedback detalhado
+                try:
+                    success = db.delete_point(point.id)
+                    
+                    if success:
+                        st.success(f"✅ Ponto de escavação (ID: {point.id}) removido com sucesso!")
+                        
+                        # Adicionamos um spinner para dar tempo de processar a exclusão
+                        with st.spinner("Atualizando lista de pontos..."):
+                            import time
+                            time.sleep(1)  # Pequena pausa para garantir atualização do DB
+                        
+                        # Recarregamos os dados para mostrar que o item foi removido
+                        updated_df = db.get_all_points()
+                        if not updated_df.empty:
+                            st.subheader("Lista atualizada de pontos:")
+                            st.dataframe(updated_df)
+                        else:
+                            st.info("Não há mais pontos cadastrados.")
+                        
+                        # Opção para retornar ao início
+                        if st.button("Voltar ao início"):
+                            st.rerun()
+                    else:
+                        st.error("❌ Erro ao remover o ponto de escavação. Tente novamente.")
+                except Exception as e:
+                    st.error(f"❌ Ocorreu um erro durante a exclusão: {str(e)}")
         else:
-            st.error("Ponto não encontrado.")
+            st.error(f"❌ Ponto com ID {point_id} não encontrado.")
 
 def search_points():
     st.header("Pesquisar Pontos de Escavação")

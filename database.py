@@ -159,40 +159,52 @@ def delete_point(point_id: int):
     """Remove um ponto de escavação pelo ID"""
     logger.info(f"Tentando excluir ponto com ID: {point_id}")
     
-    # Validação
-    if not isinstance(point_id, int) or point_id <= 0:
-        logger.error(f"ID inválido para exclusão: {point_id}")
-        return False
-    
+    # Implementação simplificada e robusta da exclusão
     try:
-        conn = sqlite3.connect(DB_PATH)
+        # Conecta ao banco de dados com pragma de isolation_level None para auto-commit
+        conn = sqlite3.connect(DB_PATH, isolation_level=None)
         cursor = conn.cursor()
         
-        # Verificamos se o ponto existe
-        cursor.execute("SELECT id FROM excavation_points WHERE id = ?", (point_id,))
-        if not cursor.fetchone():
+        # Verifica se o ponto existe
+        cursor.execute("SELECT COUNT(*) FROM excavation_points WHERE id = ?", (point_id,))
+        count = cursor.fetchone()[0]
+        
+        if count == 0:
+            logger.warning(f"Ponto com ID {point_id} não existe para exclusão")
             conn.close()
-            logger.warning(f"Tentativa de excluir ponto inexistente com ID: {point_id}")
             return False
         
-        # Executa a exclusão
-        logger.info(f"Executando DELETE para ponto com ID: {point_id}")
+        # Log para ajudar a debug
+        logger.info(f"Encontrado ponto com ID {point_id} para exclusão")
+        
+        # Executa a exclusão diretamente
         cursor.execute("DELETE FROM excavation_points WHERE id = ?", (point_id,))
         
-        # Verificamos se algo foi afetado
-        if cursor.rowcount <= 0:
-            logger.warning(f"Nenhuma linha afetada ao excluir ponto com ID: {point_id}")
-            conn.close()
-            return False
-        
-        # Commit explícito para garantir que as alterações sejam salvas
+        # Forçar commit (embora isolation_level=None já faça isso)
         conn.commit()
-        logger.info(f"Exclusão confirmada com commit para ID: {point_id}")
         
+        # Verifica se a exclusão foi bem-sucedida
+        cursor.execute("SELECT COUNT(*) FROM excavation_points WHERE id = ?", (point_id,))
+        remaining = cursor.fetchone()[0]
+        
+        # Fecha a conexão
         conn.close()
-        return True
+        
+        if remaining == 0:
+            logger.info(f"Ponto com ID {point_id} excluído com sucesso")
+            return True
+        else:
+            logger.error(f"Falha ao excluir: ponto com ID {point_id} ainda existe")
+            return False
+            
     except Exception as e:
         logger.error(f"Erro ao excluir ponto com ID {point_id}: {str(e)}")
+        # Tenta fechar a conexão se ainda estiver aberta
+        try:
+            if 'conn' in locals() and conn:
+                conn.close()
+        except:
+            pass
         return False
 
 def search_points(query: str = "", field: str = None):

@@ -291,55 +291,81 @@ def delete_point():
         return
     
     # Exibe a tabela para visualização
+    st.write("### Pontos disponíveis para exclusão")
     st.dataframe(df)
     
-    # Formulário de exclusão
-    with st.form("delete_form"):
-        point_id = st.number_input("ID do ponto a ser removido:", min_value=1, step=1)
-        submitted = st.form_submit_button("Buscar Ponto")
+    # Interface de exclusão simplificada
+    col1, col2 = st.columns([3, 1])
     
-    if submitted:
-        point = db.get_point_by_id(point_id)
+    with col1:
+        point_id = st.number_input("ID do ponto a ser removido:", min_value=1, step=1)
+    
+    with col2:
+        if st.button("Buscar"):
+            st.session_state.selected_point_id = point_id
+    
+    # Se um ponto foi selecionado
+    if 'selected_point_id' in st.session_state:
+        selected_id = st.session_state.selected_point_id
+        point = db.get_point_by_id(selected_id)
         
         if point:
-            st.warning(f"Você está prestes a remover o ponto: **{point.point_type}** (ID: {point.id})")
-            st.write(f"Latitude: {point.latitude}, Longitude: {point.longitude}")
-            st.write(f"Responsável: {point.responsible}")
-            st.write(f"Descrição: {point.description[:100]}..." if len(point.description) > 100 else f"Descrição: {point.description}")
+            st.warning(f"⚠️ Você está prestes a remover o seguinte ponto:")
             
-            # Botão de confirmação fora do formulário para evitar problemas de estado
-            confirm_delete = st.button("🗑️ Confirmar Exclusão", key="confirm_delete")
+            # Exibe informações em um formato mais estruturado
+            col1, col2 = st.columns(2)
+            with col1:
+                st.write(f"**ID:** {point.id}")
+                st.write(f"**Tipo:** {point.point_type}")
+                st.write(f"**Responsável:** {point.responsible}")
             
-            if confirm_delete:
-                # Tentativa de exclusão com feedback detalhado
-                try:
+            with col2:
+                st.write(f"**Latitude:** {point.latitude}")
+                st.write(f"**Longitude:** {point.longitude}")
+                st.write(f"**Data:** {point.discovery_date.strftime('%d/%m/%Y')}")
+            
+            st.write(f"**Descrição:** {point.description[:100]}..." if len(point.description) > 100 else f"**Descrição:** {point.description}")
+            
+            # Botão de confirmação de exclusão
+            if st.button("🗑️ Confirmar Exclusão", key="confirm_delete_final"):
+                # Adicionamos feedback visual durante o processo
+                with st.spinner("Excluindo ponto..."):
+                    # Tenta excluir o ponto
                     success = db.delete_point(point.id)
                     
                     if success:
-                        st.success(f"✅ Ponto de escavação (ID: {point.id}) removido com sucesso!")
+                        # Limpa o ponto selecionado
+                        del st.session_state.selected_point_id
+                        st.success(f"✅ Ponto ID: {point.id} foi removido com sucesso!")
                         
-                        # Adicionamos um spinner para dar tempo de processar a exclusão
-                        with st.spinner("Atualizando lista de pontos..."):
-                            import time
-                            time.sleep(1)  # Pequena pausa para garantir atualização do DB
-                        
-                        # Recarregamos os dados para mostrar que o item foi removido
-                        updated_df = db.get_all_points()
-                        if not updated_df.empty:
-                            st.subheader("Lista atualizada de pontos:")
-                            st.dataframe(updated_df)
+                        # Verifica se o ponto realmente sumiu
+                        check_point = db.get_point_by_id(point.id)
+                        if check_point:
+                            st.error("⚠️ Erro: O ponto ainda existe na base de dados após a exclusão.")
                         else:
-                            st.info("Não há mais pontos cadastrados.")
+                            st.info("📊 A base de dados foi atualizada.")
+                            
+                            # Atualiza a lista de pontos
+                            new_df = db.get_all_points()
+                            if not new_df.empty:
+                                st.write("### Lista atualizada de pontos")
+                                st.dataframe(new_df)
+                            else:
+                                st.info("Não há mais pontos cadastrados.")
                         
-                        # Opção para retornar ao início
-                        if st.button("Voltar ao início"):
+                        # Opção para retornar
+                        if st.button("↩️ Voltar"):
                             st.rerun()
                     else:
-                        st.error("❌ Erro ao remover o ponto de escavação. Tente novamente.")
-                except Exception as e:
-                    st.error(f"❌ Ocorreu um erro durante a exclusão: {str(e)}")
+                        st.error(f"❌ Falha ao remover o ponto ID: {point.id}. Tente novamente.")
+            
+            # Botão para cancelar a exclusão
+            if st.button("❌ Cancelar", key="cancel_delete"):
+                del st.session_state.selected_point_id
+                st.rerun()
         else:
-            st.error(f"❌ Ponto com ID {point_id} não encontrado.")
+            st.error(f"❌ Ponto com ID {selected_id} não encontrado.")
+            del st.session_state.selected_point_id
 
 def search_points():
     st.header("Pesquisar Pontos de Escavação")

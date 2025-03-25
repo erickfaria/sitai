@@ -2,7 +2,7 @@ import sqlite3
 import os
 import pandas as pd
 from datetime import datetime
-from models import ExcavationPoint
+from sitai.models import ExcavationPoint
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 DB_PATH = os.path.join(DATA_DIR, 'database.db')

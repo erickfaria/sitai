@@ -7,8 +7,8 @@ import sys
 # Adiciona o diretório atual ao sys.path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from models import ExcavationPoint
-import database as db
+from sitai.models import ExcavationPoint
+import sitai.database as db
 
 # Inicializa o banco de dados
 db.init_db()

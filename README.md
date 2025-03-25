@@ -44,7 +44,7 @@ Cada ponto de escavação contém:
 ## 🚀 Instalação e Uso
 
 ### Pré-requisitos
-- Python 3.7 ou superior
+- Python 3.8 ou superior
 - pip (gerenciador de pacotes do Python)
 
 ### Instalação
@@ -69,7 +69,14 @@ run.bat
 
 Ou em qualquer sistema operacional:
 ```bash
-python -m streamlit run sitai/app.py
+python -m streamlit run app.py
+```
+
+### Opções Avançadas
+
+O script `run.bat` suporta várias opções:
+```bash
+run.bat --help
 ```
 
 ## 📖 Documentação

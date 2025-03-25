@@ -29,7 +29,7 @@ jobs:
     
     - name: Check code style with black
       run: |
-        pip install black
+        pip install black==23.10.0  # Esta versão suporta Python 3.12
         black --check .
     
     - name: Lint with flake8

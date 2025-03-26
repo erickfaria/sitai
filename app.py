@@ -9,7 +9,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 # Verifica se os módulos estão disponíveis no caminho diretamente ou na pasta sitai
 try:
-    from models import ExcavationPoint
+    from sitai.models import ExcavationPoint
     import database as db
 except ModuleNotFoundError:
     try:

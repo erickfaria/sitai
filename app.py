@@ -41,6 +41,9 @@ except ModuleNotFoundError:
 # Inicializa o banco de dados
 db.init_db()
 
+# Configuração para formato de data brasileiro
+DATE_FORMAT = "DD/MM/YYYY"
+
 # Função auxiliar para formatação de data
 
 
@@ -68,14 +71,14 @@ def main():
             os.path.join("images", "arqueologo.png"),  # Diretamente no subdiretório /images
             os.path.join("sitai", "images", "arqueologo.png")  # Em sitai/images
         ]
-        
+
         # Tenta cada possível caminho
         logo_path = None
         for path in possible_paths:
             if os.path.exists(path):
                 logo_path = path
                 break
-        
+
         # Exibe a imagem se encontrada
         if logo_path:
             st.image(logo_path, width=120)
@@ -172,10 +175,12 @@ def create_point():
 
         col1, col2 = st.columns(2)
         with col1:
+            # Mudando o formato para usar ponto como delimitador decimal
             latitude = st.number_input("Latitude*", format="%.6f", step=0.000001, min_value=-90.0, max_value=90.0)
-            altitude = st.number_input("Altitude (metros)*", min_value=0.0)
+            altitude = st.number_input("Altitude (metros)*", format="%.2f", min_value=0.0)
 
         with col2:
+            # Mudando o formato para usar ponto como delimitador decimal
             longitude = st.number_input("Longitude*", format="%.6f", step=0.000001, min_value=-180.0, max_value=180.0)
             srid = st.selectbox("Sistema de Referência*", ["WGS84", "SIRGAS2000", "SAD69", "Outro"])
 
@@ -185,7 +190,12 @@ def create_point():
         description = st.text_area("Descrição detalhada*", height=150)
         responsible = st.text_input("Responsável pelo registro*")
 
-        discovery_date = st.date_input("Data da descoberta", datetime.now())
+        # Usando o formato brasileiro para a data
+        discovery_date = st.date_input(
+            "Data da descoberta",
+            datetime.now(),
+            format="DD/MM/YYYY"  # Formato brasileiro
+        )
 
         submitted = st.form_submit_button("Cadastrar Ponto")
 
@@ -292,11 +302,13 @@ def update_point():
 
             col1, col2 = st.columns(2)
             with col1:
+                # Mudando o formato para usar ponto como delimitador decimal
                 latitude = st.number_input("Latitude*", value=point.latitude, format="%.6f",
                                            step=0.000001, min_value=-90.0, max_value=90.0)
-                altitude = st.number_input("Altitude (metros)*", value=point.altitude, min_value=0.0)
+                altitude = st.number_input("Altitude (metros)*", value=point.altitude, format="%.2f", min_value=0.0)
 
             with col2:
+                # Mudando o formato para usar ponto como delimitador decimal
                 longitude = st.number_input("Longitude*", value=point.longitude, format="%.6f",
                                             step=0.000001, min_value=-180.0, max_value=180.0)
                 srid = st.selectbox("Sistema de Referência*", ["WGS84", "SIRGAS2000", "SAD69", "Outro"],
@@ -310,7 +322,12 @@ def update_point():
             description = st.text_area("Descrição detalhada*", value=point.description, height=150)
             responsible = st.text_input("Responsável pelo registro*", value=point.responsible)
 
-            discovery_date = st.date_input("Data da descoberta", value=point.discovery_date)
+            # Usando o formato brasileiro para a data
+            discovery_date = st.date_input(
+                "Data da descoberta",
+                value=point.discovery_date,
+                format="DD/MM/YYYY"  # Formato brasileiro
+            )
 
             submitted = st.form_submit_button("Atualizar Ponto")
 

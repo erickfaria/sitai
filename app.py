@@ -51,7 +51,38 @@ def format_date(date_obj):
 
 
 def main():
-    st.title("SITAI - Sistema de Catalogação de Escavações Arqueológicas")
+    # Layout com logo no canto superior direito
+    col1, col2 = st.columns([4, 1])
+
+    with col1:
+        st.title("SITAI - Sistema de Catalogação de Escavações Arqueológicas")
+
+    with col2:
+        # Tenta localizar a imagem em diferentes caminhos relativos
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        possible_paths = [
+            os.path.join(current_dir, "arqueologo.png"),  # No mesmo diretório do script
+            os.path.join(current_dir, "images", "arqueologo.png"),  # Em um subdiretório /images
+            os.path.join(os.path.dirname(current_dir), "images", "arqueologo.png"),  # Um nível acima em /images
+            "arqueologo.png",  # No diretório de trabalho atual
+            os.path.join("images", "arqueologo.png"),  # Diretamente no subdiretório /images
+            os.path.join("sitai", "images", "arqueologo.png")  # Em sitai/images
+        ]
+        
+        # Tenta cada possível caminho
+        logo_path = None
+        for path in possible_paths:
+            if os.path.exists(path):
+                logo_path = path
+                break
+        
+        # Exibe a imagem se encontrada
+        if logo_path:
+            st.image(logo_path, width=120)
+        else:
+            st.warning("Imagem não encontrada. Por favor, verifique se arqueologo.png está no diretório atual ou na pasta 'images'.")
+            st.info("Caminhos pesquisados: " + ", ".join(possible_paths))
+
     st.sidebar.title("Navegação")
 
     # Menu de navegação

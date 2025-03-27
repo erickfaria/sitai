@@ -112,6 +112,15 @@ def main():
 def list_points():
     st.header("Pontos de Escavação Cadastrados")
 
+    # Box explicativa com instruções
+    st.info("""
+    ### 📋 Como usar esta página
+    
+    - Use o **menu de ordenação** para organizar os dados conforme sua preferência
+    - Insira o **ID** de um ponto e clique em **Ver Detalhes** para visualizar informações completas
+    - Os detalhes incluem coordenadas geográficas, data de descoberta e descrição completa
+    """)
+
     # Opções de ordenação
     sort_options = st.selectbox(
         "Ordenar por:",
@@ -162,6 +171,16 @@ def list_points():
 
 def create_point():
     st.header("Cadastrar Novo Ponto de Escavação")
+
+    # Box explicativa com instruções
+    st.info("""
+    ### ✏️ Instruções para cadastro
+    
+    - Todos os campos marcados com * são **obrigatórios**
+    - Para **coordenadas geográficas**, use ponto (.) como separador decimal
+    - Ao selecionar **Outro** no tipo de ponto ou sistema de referência, preencha o campo adicional
+    - A **data** deve ser inserida no formato **DD/MM/AAAA**
+    """)
 
     with st.form("create_point_form"):
         point_type = st.selectbox(
@@ -240,6 +259,18 @@ def create_point():
 
 def update_point():
     st.header("Atualizar Ponto de Escavação")
+
+    # Box explicativa com instruções
+    st.info("""
+    ### 🔄 Como atualizar um ponto
+    
+    1. Insira o **ID** do ponto que deseja modificar
+    2. Clique em **Carregar Dados** para visualizar as informações atuais
+    3. Faça as **alterações necessárias** nos campos
+    4. Clique em **Atualizar Ponto** para salvar as modificações
+    
+    Todos os campos marcados com * são obrigatórios.
+    """)
 
     # Exibe mensagem de sucesso se atualização anterior foi bem-sucedida
     if 'update_success' in st.session_state:
@@ -389,6 +420,18 @@ def update_point():
 def delete_point():
     st.header("Remover Ponto de Escavação")
 
+    # Box explicativa com instruções
+    st.info("""
+    ### 🗑️ Processo de remoção
+    
+    1. Selecione o **ID** do ponto que deseja remover
+    2. Clique em **Buscar** para localizar o ponto
+    3. Confira os dados para **garantir que é o ponto correto**
+    4. Use o botão **Confirmar Exclusão** para remover permanentemente
+    
+    ⚠️ **Atenção**: Esta ação é irreversível! Os dados removidos não poderão ser recuperados.
+    """)
+
     # Lista os pontos para seleção
     df = db.get_all_points()
 
@@ -482,6 +525,16 @@ def delete_point():
 
 def search_points():
     st.header("Pesquisar Pontos de Escavação")
+
+    # Box explicativa com instruções
+    st.info("""
+    ### 🔍 Dicas de pesquisa
+    
+    - Deixe o campo de pesquisa **vazio** para listar todos os pontos
+    - Use o menu **Pesquisar em campo específico** para refinar sua busca
+    - A pesquisa funciona com **partes de palavras** e não diferencia maiúsculas/minúsculas
+    - Você pode **ordenar os resultados** usando diferentes critérios
+    """)
 
     search_term = st.text_input("Termo de pesquisa:")
 

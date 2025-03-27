@@ -64,19 +64,19 @@ pip install -r requirements.txt
 
 No Windows:
 ```bash
-run.bat
+SITAI.bat
 ```
 
 Ou em qualquer sistema operacional:
 ```bash
-python -m streamlit run app.py
+python -m streamlit SITAI app.py
 ```
 
 ### Opções Avançadas
 
-O script `run.bat` suporta várias opções:
+O script `SITAI.bat` suporta várias opções:
 ```bash
-run.bat --help
+SITAI.bat --help
 ```
 
 ## 📖 Documentação

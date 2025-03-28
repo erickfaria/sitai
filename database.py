@@ -10,8 +10,8 @@ import sqlite3
 import os
 import pandas as pd
 from datetime import datetime
-import logging  # Corrigido: era "loggingnPoint"
-from typing import Optional, List, Dict, Any, Union, TypeVar
+import logging
+from typing import Optional, List, Dict, Any, Union, TYPE_CHECKING
 
 # Configuração de logging
 logging.basicConfig(level=logging.INFO)
@@ -22,15 +22,25 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 DB_PATH = os.path.join(DATA_DIR, 'database.db')
 TABLE_NAME = "excavation_points"
 
-# Definição de tipo para resolução de problemas de tipagem
-T = TypeVar('T')
-
 # Definição de classe fallback para quando ExcavationPoint não puder ser importado
+
+
 class ExcavationPointFallback:
     """Classe de fallback para quando ExcavationPoint não puder ser importado."""
+    id: Optional[int] = None
+    point_type: str = ""
+    latitude: float = 0.0
+    longitude: float = 0.0
+    altitude: float = 0.0
+    description: Optional[str] = None
+    discovery_date: datetime = datetime.now()
+    responsible: str = ""
+    srid: str = ""
+
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
+
 
 # Tenta importar o modelo de diferentes locais
 try:
@@ -43,6 +53,13 @@ except ImportError:
         # Definindo uma classe substituta para evitar erros de execução
         ExcavationPoint = ExcavationPointFallback
         logger.warning("Usando classe de fallback para ExcavationPoint")
+
+# Para uso em anotações de tipo
+if TYPE_CHECKING:
+    from typing import Type
+    EP = ExcavationPoint
+else:
+    EP = Any
 
 
 def ensure_data_dir() -> None:
@@ -87,7 +104,7 @@ def init_db() -> None:
     logger.info("Banco de dados inicializado com sucesso")
 
 
-def create_point(point: 'ExcavationPoint') -> int:
+def create_point(point: Any) -> int:
     """
     Cria um novo ponto de escavação no banco de dados.
 
@@ -96,6 +113,9 @@ def create_point(point: 'ExcavationPoint') -> int:
 
     Returns:
         int: ID do ponto criado.
+
+    Raises:
+        ValueError: Se não for possível obter o ID após a inserção.
     """
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
@@ -122,6 +142,10 @@ def create_point(point: 'ExcavationPoint') -> int:
     point_id = cursor.lastrowid
     conn.close()
 
+    if point_id is None:
+        logger.error("Falha ao obter ID do ponto após inserção")
+        raise ValueError("Não foi possível obter o ID do ponto após a inserção")
+
     logger.info(f"Ponto criado com ID: {point_id}")
     return point_id
 
@@ -140,7 +164,7 @@ def get_all_points() -> pd.DataFrame:
     return df
 
 
-def get_point_by_id(point_id: int) -> Optional['ExcavationPoint']:
+def get_point_by_id(point_id: int) -> Optional[Any]:
     """
     Busca um ponto específico pelo ID.
 
@@ -169,7 +193,7 @@ def get_point_by_id(point_id: int) -> Optional['ExcavationPoint']:
     return None
 
 
-def update_point(point: 'ExcavationPoint') -> bool:
+def update_point(point: Any) -> bool:
     """
     Atualiza um ponto de escavação existente.
 
@@ -185,10 +209,14 @@ def update_point(point: 'ExcavationPoint') -> bool:
     if point.id is None:  # Verificação explícita contra None
         logger.error("Tentativa de atualização sem ID")
         raise ValueError("ID de ponto não especificado para atualização")
-    
-    # Assegura que point.id é int
-    point_id = int(point.id)
-    
+
+    try:
+        # Assegura que point.id é int
+        point_id = int(point.id)
+    except (TypeError, ValueError):
+        logger.error(f"ID inválido: {point.id} não é um inteiro válido")
+        return False
+
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 

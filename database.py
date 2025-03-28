@@ -334,7 +334,12 @@ def search_points(query: str = "", field: Optional[str] = None) -> List[Dict[str
     cursor = conn.cursor()
 
     try:
+        allowed_fields = ["point_type", "latitude", "longitude", "altitude", "description", "discovery_date", "responsible", "srid"]
         if field and query:
+            if field not in allowed_fields:
+                logger.error(f"Campo inválido para busca: {field}")
+                conn.close()
+                return []
             sql_query = f"SELECT * FROM {TABLE_NAME} WHERE {field} LIKE ?"
             cursor.execute(sql_query, (f"%{query}%",))
         elif query:

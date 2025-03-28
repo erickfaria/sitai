@@ -4,7 +4,7 @@
 [![Python Version](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://www.python.org/downloads/)
 
 <p align="center">
-  <img src="docs/images/sitai-logo.png" alt="SITAI Logo" width="200"/>
+  <img src="docs/images/sitai-logo.png" alt="SITAI Logo" width="700"/>
 </p>
 
 ## 📋 Descrição
@@ -94,8 +94,14 @@ Este projeto está licenciado sob a licença MIT - veja o arquivo [LICENSE](LICE
 ## 📊 Capturas de Tela
 
 <div align="center">
-  <img src="docs/images/screenshot-1.png" alt="Tela de Cadastro" width="45%"/>
-  <img src="docs/images/screenshot-2.png" alt="Tela de Visualização" width="45%"/>
+  <div style="margin-bottom: 20px;">
+    <img src="docs/images/cadastradoNovoPontoSitai.png" alt="Cadastro de Novo Ponto" width="45%"/>
+    <img src="docs/images/listarPontosSitai.png" alt="Listagem de Pontos" width="45%"/>
+  </div>
+  <div>
+    <img src="docs/images/pesquisarPontosSitai.png" alt="Pesquisa de Pontos" width="45%"/>
+    <img src="docs/images/removerPontosSitai.png" alt="Remoção de Pontos" width="45%"/>
+  </div>
 </div>
 
 ## 📞 Contato

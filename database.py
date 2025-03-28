@@ -46,13 +46,10 @@ class ExcavationPointFallback:
 try:
     from sitai.models import ExcavationPoint
 except ImportError:
-    try:
-        from sitai.models import ExcavationPoint
-    except ImportError:
-        logger.error("Não foi possível importar o modelo ExcavationPoint")
-        # Definindo uma classe substituta para evitar erros de execução
-        ExcavationPoint = ExcavationPointFallback
-        logger.warning("Usando classe de fallback para ExcavationPoint")
+    logger.error("Não foi possível importar o modelo ExcavationPoint")
+    # Definindo uma classe substituta para evitar erros de execução
+    ExcavationPoint = ExcavationPointFallback
+    logger.warning("Usando classe de fallback para ExcavationPoint")
 
 # Para uso em anotações de tipo
 if TYPE_CHECKING:

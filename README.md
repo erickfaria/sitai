@@ -95,7 +95,7 @@ Este projeto está licenciado sob a licença MIT - veja o arquivo [LICENSE](LICE
 
 <div align="center">
   <div style="margin-bottom: 20px;">
-    <img src="docs/images/cadastratNovoPontoSitai.png" alt="Cadastro de Novo Ponto" width="45%"/>
+    <img src="docs/images/cadastradoNovoPontoSitai.png" alt="Cadastro de Novo Ponto" width="45%"/>
     <img src="docs/images/listarPontosSitai.png" alt="Listagem de Pontos" width="45%"/>
   </div>
   <div>
